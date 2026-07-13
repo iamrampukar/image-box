@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Flexbox Playground — Container & Item Properties</title>
+<style>
+  :root{
+    --bg: #14171c;
+    --panel: #1b1f27;
+    --panel-2: #20242e;
+    --line: #2b3040;
+    --text: #e7e9ee;
+    --dim: #8890a4;
+    --mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+    --container-accent: #7dd3fc; /* cyan - container properties */
+    --item-accent: #fbbf24;      /* amber - item properties */
+    --pink: #f472b6;
+    --green: #86efac;
+    --violet: #c4b5fd;
+  }
+
+  * { box-sizing: border-box; }
+
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    padding: 32px 20px 60px;
+  }
+
+  .wrap{ max-width: 1180px; margin: 0 auto; }
+
+  header{
+    display:flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+  header h1{
+    font-family: var(--mono);
+    font-size: 26px;
+    font-weight: 700;
+    margin:0;
+    letter-spacing: -0.5px;
+  }
+  header h1 span{ color: var(--container-accent); }
+  header .tag{
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--dim);
+    border: 1px solid var(--line);
+    padding: 3px 8px;
+    border-radius: 20px;
+  }
+  .sub{ color: var(--dim); margin: 0 0 30px; font-size: 14.5px; max-width: 700px; line-height:1.5; }
+
+  .grid{
+    display:grid;
+    grid-template-columns: 300px 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 900px){
+    .grid{ grid-template-columns: 1fr; }
+  }
+
+  .panel{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 18px;
+  }
+
+  .panel h2{
+    font-family: var(--mono);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin: 0 0 14px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .dot{ width:8px; height:8px; border-radius:50%; display:inline-block; }
+  .dot.c{ background: var(--container-accent); }
+  .dot.i{ background: var(--item-accent); }
+
+  .field{ margin-bottom: 16px; }
+  .field label{
+    display:block;
+    font-size: 12.5px;
+    color: var(--dim);
+    margin-bottom: 6px;
+    font-family: var(--mono);
+  }
+  select, input[type=range], input[type=number]{
+    width: 100%;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 7px 8px;
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+  select:focus, input:focus{ outline: 2px solid var(--container-accent); outline-offset: 1px; }
+
+  .rangeval{ color: var(--item-accent); font-family: var(--mono); font-size:12px; float:right; }
+
+  .item-tabs{ display:flex; gap:6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .item-tab{
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: var(--panel-2);
+    color: var(--dim);
+    cursor: pointer;
+  }
+  .item-tab.active{
+    border-color: var(--item-accent);
+    color: var(--item-accent);
+  }
+
+  /* --- Preview stage --- */
+  .stage-panel{ padding: 0; overflow:hidden; }
+  .stage-head{
+    display:flex; justify-content:space-between; align-items:center;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  .stage-head h2{ margin:0; }
+  .reset-btn{
+    font-family: var(--mono);
+    font-size: 12px;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--dim);
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .reset-btn:hover{ border-color: var(--pink); color: var(--pink); }
+
+  #stage{
+    min-height: 340px;
+    padding: 20px;
+    background:
+      linear-gradient(var(--panel-2) 1px, transparent 1px) 0 0/100% 20px,
+      var(--panel);
+    border-bottom: 1px solid var(--line);
+  }
+
+  #flexContainer{
+    min-height: 300px;
+    border: 2px dashed var(--container-accent);
+    border-radius: 8px;
+    background: rgba(125,211,252,0.05);
+    padding: 12px;
+  }
+
+  .flex-item{
+    background: linear-gradient(160deg, #3a3020, #2a2418);
+    border: 1px solid var(--item-accent);
+    color: var(--item-accent);
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius: 6px;
+    min-width: 50px;
+    min-height: 50px;
+    cursor: pointer;
+    transition: box-shadow .15s ease, transform .1s ease;
+    user-select: none;
+  }
+  .flex-item:hover{ transform: translateY(-1px); }
+  .flex-item.selected{
+    box-shadow: 0 0 0 2px var(--pink);
+    color: #fff;
+    background: linear-gradient(160deg, #4a2a3a, #2a1a24);
+    border-color: var(--pink);
+  }
+
+  /* code panel */
+  .code-panel{ padding:0; }
+  .code-head{
+    display:flex; justify-content:space-between; align-items:center;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  .code-head h2{ margin:0; }
+  .copy-btn{
+    font-family: var(--mono);
+    font-size: 12px;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--dim);
+    padding: 5px 11px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .copy-btn:hover{ border-color: var(--green); color: var(--green); }
+
+  pre#cssOut{
+    margin:0;
+    padding: 16px 18px;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .k{ color: var(--pink); }
+  .p{ color: var(--container-accent); }
+  .v{ color: var(--green); }
+  .cm{ color: var(--dim); }
+  .sel{ color: var(--violet); }
+
+  footer{
+    margin-top: 24px;
+    color: var(--dim);
+    font-size: 12.5px;
+    text-align:center;
+    font-family: var(--mono);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>flex<span>box</span>://playground</h1>
+    <span class="tag">live CSS generator</span>
+  </header>
+  <p class="sub">Adjust container properties (cyan) and per-item properties (amber). The box model updates live, and the exact CSS is generated below — click any box to edit it individually.</p>
+
+  <div class="grid">
+
+    <!-- CONTROLS -->
+    <div class="controls-col" style="display:flex; flex-direction:column; gap:20px;">
+
+      <div class="panel">
+        <h2><span class="dot c"></span>container</h2>
+
+        <div class="field">
+          <label>flex-direction</label>
+          <select id="flexDirection">
+            <option value="row" selected>row</option>
+            <option value="row-reverse">row-reverse</option>
+            <option value="column">column</option>
+            <option value="column-reverse">column-reverse</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>justify-content</label>
+          <select id="justifyContent">
+            <option value="flex-start" selected>flex-start</option>
+            <option value="flex-end">flex-end</option>
+            <option value="center">center</option>
+            <option value="space-between">space-between</option>
+            <option value="space-around">space-around</option>
+            <option value="space-evenly">space-evenly</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>align-items</label>
+          <select id="alignItems">
+            <option value="stretch" selected>stretch</option>
+            <option value="flex-start">flex-start</option>
+            <option value="flex-end">flex-end</option>
+            <option value="center">center</option>
+            <option value="baseline">baseline</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>flex-wrap</label>
+          <select id="flexWrap">
+            <option value="nowrap" selected>nowrap</option>
+            <option value="wrap">wrap</option>
+            <option value="wrap-reverse">wrap-reverse</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>align-content <span class="rangeval" id="acHint">(needs wrap)</span></label>
+          <select id="alignContent">
+            <option value="stretch" selected>stretch</option>
+            <option value="flex-start">flex-start</option>
+            <option value="flex-end">flex-end</option>
+            <option value="center">center</option>
+            <option value="space-between">space-between</option>
+            <option value="space-around">space-around</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>gap <span class="rangeval" id="gapVal">12px</span></label>
+          <input type="range" id="gap" min="0" max="48" value="12">
+        </div>
+
+        <div class="field" style="margin-bottom:0;">
+          <label>item count <span class="rangeval" id="countVal">5</span></label>
+          <input type="range" id="itemCount" min="2" max="10" value="5">
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2><span class="dot i"></span>selected item</h2>
+        <div class="item-tabs" id="itemTabs"></div>
+
+        <div class="field">
+          <label>flex-grow <span class="rangeval" id="growVal">0</span></label>
+          <input type="range" id="flexGrow" min="0" max="5" value="0">
+        </div>
+        <div class="field">
+          <label>flex-shrink <span class="rangeval" id="shrinkVal">1</span></label>
+          <input type="range" id="flexShrink" min="0" max="5" value="1">
+        </div>
+        <div class="field">
+          <label>flex-basis</label>
+          <select id="flexBasis">
+            <option value="auto" selected>auto</option>
+            <option value="0">0</option>
+            <option value="60px">60px</option>
+            <option value="100px">100px</option>
+            <option value="150px">150px</option>
+            <option value="30%">30%</option>
+          </select>
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>align-self</label>
+          <select id="alignSelf">
+            <option value="auto" selected>auto</option>
+            <option value="flex-start">flex-start</option>
+            <option value="flex-end">flex-end</option>
+            <option value="center">center</option>
+            <option value="stretch">stretch</option>
+            <option value="baseline">baseline</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- STAGE + CODE -->
+    <div style="display:flex; flex-direction:column; gap:20px;">
+
+      <div class="panel stage-panel">
+        <div class="stage-head">
+          <h2 style="font-family: var(--mono); font-size:12px; text-transform:uppercase; letter-spacing:1.2px; color:var(--dim);">preview</h2>
+          <button class="reset-btn" id="resetBtn">reset all</button>
+        </div>
+        <div id="stage">
+          <div id="flexContainer"></div>
+        </div>
+      </div>
+
+      <div class="panel code-panel">
+        <div class="code-head">
+          <h2 style="font-family: var(--mono); font-size:12px; text-transform:uppercase; letter-spacing:1.2px; color:var(--dim);">generated css</h2>
+          <button class="copy-btn" id="copyBtn">copy</button>
+        </div>
+        <pre id="cssOut"></pre>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>click a box in the preview to select it &nbsp;·&nbsp; drag sliders to explore &nbsp;·&nbsp; all properties render live</footer>
+</div>
+
+<script>
+  const containerEl = document.getElementById('flexContainer');
+  const stageEl = document.getElementById('stage');
+  const itemTabs = document.getElementById('itemTabs');
+  const cssOut = document.getElementById('cssOut');
+
+  let itemCount = 5;
+  let selectedIndex = 0;
+  let items = []; // {grow, shrink, basis, alignSelf}
+
+  const containerCtrls = ['flexDirection','justifyContent','alignItems','flexWrap','alignContent'];
+  const idToProp = {
+    flexDirection: 'flex-direction',
+    justifyContent: 'justify-content',
+    alignItems: 'align-items',
+    flexWrap: 'flex-wrap',
+    alignContent: 'align-content'
+  };
+
+  function defaultItem(){
+    return { grow: 0, shrink: 1, basis: 'auto', alignSelf: 'auto' };
+  }
+
+  function initItems(n){
+    items = [];
+    for(let i=0;i<n;i++) items.push(defaultItem());
+    if(selectedIndex >= n) selectedIndex = n-1;
+  }
+
+  function buildTabs(){
+    itemTabs.innerHTML = '';
+    items.forEach((_, i) => {
+      const b = document.createElement('div');
+      b.className = 'item-tab' + (i===selectedIndex ? ' active' : '');
+      b.textContent = i+1;
+      b.onclick = () => { selectedIndex = i; syncItemPanel(); buildTabs(); renderItems(); };
+      itemTabs.appendChild(b);
+    });
+  }
+
+  function syncItemPanel(){
+    const it = items[selectedIndex];
+    document.getElementById('flexGrow').value = it.grow;
+    document.getElementById('growVal').textContent = it.grow;
+    document.getElementById('flexShrink').value = it.shrink;
+    document.getElementById('shrinkVal').textContent = it.shrink;
+    document.getElementById('flexBasis').value = it.basis;
+    document.getElementById('alignSelf').value = it.alignSelf;
+  }
+
+  function renderContainer(){
+    const gap = document.getElementById('gap').value;
+    containerCtrls.forEach(id => {
+      containerEl.style[toCamel(idToProp[id])] = document.getElementById(id).value;
+    });
+    containerEl.style.gap = gap + 'px';
+    containerEl.style.display = 'flex';
+  }
+
+  function toCamel(prop){
+    return prop.replace(/-([a-z])/g, (_,c) => c.toUpperCase());
+  }
+
+  function renderItems(){
+    containerEl.innerHTML = '';
+    items.forEach((it, i) => {
+      const div = document.createElement('div');
+      div.className = 'flex-item' + (i===selectedIndex ? ' selected' : '');
+      div.style.flexGrow = it.grow;
+      div.style.flexShrink = it.shrink;
+      div.style.flexBasis = it.basis;
+      div.style.alignSelf = it.alignSelf;
+      div.textContent = i+1;
+      div.onclick = () => { selectedIndex = i; syncItemPanel(); buildTabs(); renderItems(); };
+      containerEl.appendChild(div);
+    });
+  }
+
+  function updateCode(){
+    const cd = {};
+    containerCtrls.forEach(id => cd[idToProp[id]] = document.getElementById(id).value);
+    const gap = document.getElementById('gap').value;
+
+    let html = '';
+    html += `<span class="sel">.container</span> {\n`;
+    html += `  <span class="k">display</span>: <span class="v">flex</span>;\n`;
+    html += `  <span class="k">flex-direction</span>: <span class="v">${cd['flex-direction']}</span>;\n`;
+    html += `  <span class="k">justify-content</span>: <span class="v">${cd['justify-content']}</span>;\n`;
+    html += `  <span class="k">align-items</span>: <span class="v">${cd['align-items']}</span>;\n`;
+    html += `  <span class="k">flex-wrap</span>: <span class="v">${cd['flex-wrap']}</span>;\n`;
+    html += `  <span class="k">align-content</span>: <span class="v">${cd['align-content']}</span>; <span class="cm">/* only applies when wrapping */</span>\n`;
+    html += `  <span class="k">gap</span>: <span class="v">${gap}px</span>;\n`;
+    html += `}\n\n`;
+
+    items.forEach((it, i) => {
+      html += `<span class="sel">.item-${i+1}</span> {\n`;
+      html += `  <span class="k">flex-grow</span>: <span class="v">${it.grow}</span>;\n`;
+      html += `  <span class="k">flex-shrink</span>: <span class="v">${it.shrink}</span>;\n`;
+      html += `  <span class="k">flex-basis</span>: <span class="v">${it.basis}</span>;\n`;
+      html += `  <span class="k">align-self</span>: <span class="v">${it.alignSelf}</span>;\n`;
+      html += `}\n`;
+    });
+
+    cssOut.innerHTML = html;
+  }
+
+  function fullRender(){
+    renderContainer();
+    renderItems();
+    updateCode();
+    document.getElementById('acHint').style.display =
+      document.getElementById('flexWrap').value === 'nowrap' ? 'inline' : 'none';
+  }
+
+  // wire up container controls
+  containerCtrls.forEach(id => {
+    document.getElementById(id).addEventListener('input', fullRender);
+  });
+  document.getElementById('gap').addEventListener('input', e => {
+    document.getElementById('gapVal').textContent = e.target.value + 'px';
+    fullRender();
+  });
+  document.getElementById('itemCount').addEventListener('input', e => {
+    itemCount = parseInt(e.target.value);
+    document.getElementById('countVal').textContent = itemCount;
+    initItems(itemCount);
+    buildTabs();
+    syncItemPanel();
+    fullRender();
+  });
+
+  // wire up item controls
+  document.getElementById('flexGrow').addEventListener('input', e => {
+    items[selectedIndex].grow = e.target.value;
+    document.getElementById('growVal').textContent = e.target.value;
+    fullRender();
+  });
+  document.getElementById('flexShrink').addEventListener('input', e => {
+    items[selectedIndex].shrink = e.target.value;
+    document.getElementById('shrinkVal').textContent = e.target.value;
+    fullRender();
+  });
+  document.getElementById('flexBasis').addEventListener('change', e => {
+    items[selectedIndex].basis = e.target.value;
+    fullRender();
+  });
+  document.getElementById('alignSelf').addEventListener('change', e => {
+    items[selectedIndex].alignSelf = e.target.value;
+    fullRender();
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    containerCtrls.forEach(id => document.getElementById(id).selectedIndex = 0);
+    document.getElementById('gap').value = 12;
+    document.getElementById('gapVal').textContent = '12px';
+    document.getElementById('itemCount').value = 5;
+    document.getElementById('countVal').textContent = '5';
+    itemCount = 5;
+    selectedIndex = 0;
+    initItems(5);
+    buildTabs();
+    syncItemPanel();
+    fullRender();
+  });
+
+  document.getElementById('copyBtn').addEventListener('click', () => {
+    const text = cssOut.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copyBtn');
+      const orig = btn.textContent;
+      btn.textContent = 'copied';
+      setTimeout(() => btn.textContent = orig, 1200);
+    });
+  });
+
+  // init
+  initItems(itemCount);
+  buildTabs();
+  syncItemPanel();
+  fullRender();
+</script>
+</body>
+</html>
